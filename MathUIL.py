@@ -67,6 +67,14 @@ def calculate_angle(A, B, C):
     
     return 180 - angle_degrees
 
+def distance_from_point_to_line(x0, y0, m, b):
+    A = -m
+    B = 1
+    C = -b
+    distance = abs(A * x0 + B * y0 + C) / math.sqrt(A**2 + B**2)
+    
+    return distance
+
 while True:
     print("Enter nothing to exit the program")
     print("1 - Money (Tax & Tip on subtotal)")
@@ -91,8 +99,10 @@ while True:
         print("Total: " + str(total))
     elif choice == "2":
         print("1 - Area and Perimeter (coordinate)")
-        print("2 - Equation and Bisector of 2 points")
-        print("2 - Angle (3 points)")
+        print("2 - Equation and ⟂Bisector of 2 points")
+        print("3 - Angle (3 points)")
+        print("4 - Heron's formula (area from 3 sides)")
+        print("5 - Distance from point and line")
         choice = input()
         if choice == "1":
             print("Enter coordinates in x (enter) y (enter) or nothing to stop")
@@ -140,3 +150,18 @@ while True:
             A, B, C = points
             angle = calculate_angle(A, B, C)    
             print(f"The angle is {angle:.3f} degrees")
+        elif choice == "4":
+            print("Enter side lengths ")
+            a = float(input())
+            b = float(input())
+            c = float(input())
+            s = (a+b+c)/2
+            area = math.sqrt(s * (s - a) * (s - b) * (s - c))
+            print(f"The area of the triangle is: {area:.3f} square units")
+        elif choice == "5":
+            x = float(input("x: "))
+            y = float(input("y: "))
+            m = float(input("m: "))
+            b = float(input("b: "))
+            distance = distance_from_point_to_line(x, y, m, b)
+            print(f"The distance: {distance:.3f}")
