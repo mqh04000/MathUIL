@@ -1,5 +1,12 @@
 import math
 
+def pointToPlane(x, y, z, a, b, c, d):
+    numerator = abs(a*x + b*y + c*z - d)
+    denominator = (a**2 + b**2 + c**2)**0.5
+    result = numerator / denominator
+    return round(result, 5)
+
+
 def calcAreaPerim(coords):
     n = len(coords)
     area = 0
@@ -12,47 +19,36 @@ def calcAreaPerim(coords):
     area = abs(area) / 2
     return area, perimeter
 
-def reduce_coefficients(A, B, C):
-    A, B, C = int(A), int(B), int(C)
-    gcd = math.gcd(A, B)
-    gcd = math.gcd(gcd, C)
-    if gcd != 0:
-        A, B, C = A // gcd, B // gcd, C // gcd
-    if A < 0:
-        A, B, C = -A, -B, -C
-    return A, B, C
-
 def line_equation(point1, point2):
     (x1, y1), (x2, y2) = point1, point2
-    if x2 - x1 == 0:
-        return None, None, None, None
+    if x2 == x1:
+        return None, None, 1, 0, -x1
     m = (y2 - y1) / (x2 - x1)
     b = y1 - m * x1
-    A = y2 - y1
-    B = x1 - x2
-    C = A * x1 + B * y1
-    A, B, C = reduce_coefficients(A*1000, B*1000, C*1000)
+    A = -m
+    B = 1
+    C = b
     return m, b, A, B, C
+
 
 def perpendicular_bisector(point1, point2):
     (x1, y1), (x2, y2) = point1, point2
     mid_x = (x1 + x2) / 2
     mid_y = (y1 + y2) / 2
-    
     if x2 - x1 == 0:
         A, B, C = 1, 0, -mid_x
         return A, B, C, None, mid_x
     if y2 - y1 == 0:
         A, B, C = 0, 1, -mid_y
         return A, B, C, 0, mid_y
-    
-    slope = -1 / ((y2 - y1) / (x2 - x1))
-    b = mid_y - slope * mid_x
-    A = slope
+    m = (y2 - y1) / (x2 - x1)
+    perp_m = -1 / m
+    b = mid_y - perp_m * mid_x
+    A = perp_m
     B = -1
-    C = A * mid_x + B * mid_y  
-    A, B, C = reduce_coefficients(int(A * 1000), int(B * 1000), int(C * 1000))
-    return A, B, C, slope, b
+    C = b
+    return A, B, C, perp_m, b
+
 
 def calculate_angle(A, B, C):
     AB = (B[0] - A[0], B[1] - A[1])
@@ -75,34 +71,27 @@ def distance_from_point_to_line(x0, y0, m, b):
     
     return distance
 
+def distance_from_point_to_line_general(x0, y0, a, b, c):
+    distance = abs(a * x0 + b * y0 - c) / math.sqrt(a**2 + b**2)
+    return distance
+
 while True:
     print("Enter nothing to exit the program")
-    print("1 - Money (Tax & Tip on subtotal)")
+    print("1 - Algebra")
     print("2 - Geometry (Coordinate Plane / Shapes)")
     choice = input()
     if choice == "":
         exit()
     elif choice == "1":
-        print("Enter as percentages without % sign")
-        print("Enter tax: ")
-        tax = float(input()) / 100
-        print("Enter tip: ")
-        tip = float(input()) / 100
-        print("Enter prices or nothing to stop")
-        subtotal = 0
-        while True:
-            x = input()
-            if x == "":
-                break
-            subtotal += float(x)
-        total = subtotal * (1 + tax + tip)
-        print("Total: " + str(total))
+        #wtv u wana add
+        x = 0
     elif choice == "2":
         print("1 - Area and Perimeter (coordinate)")
         print("2 - Equation and ⟂Bisector of 2 points")
-        print("3 - Angle (3 points)")
+        print("3 - Angle of 3 points")
         print("4 - Heron's formula (area from 3 sides)")
-        print("5 - Distance from point and line")
+        print("5 - Distance from point and line (2D)")
+        print("6 - Distance from point and plane (3D)")
         choice = input()
         if choice == "1":
             print("Enter coordinates in x (enter) y (enter) or nothing to stop")
@@ -130,15 +119,15 @@ while True:
             m, b, A, B, C = line_equation(points[0], points[1])    
             if m is not None:
                 print(f"Equation of the line:")
-                print(f"1. {A}x + {B}y = {C}")
-                print(f"2. y = {m}x + {b}")
+                print(f"1. {A:.4f}x + {B:.4f}y = {C:.4f}")
+                print(f"2. y = {m:.4f}x + {b:.4f}")
                 A_bisector, B_bisector, C_bisector, slope_bisector, b_bisector = perpendicular_bisector(points[0], points[1])
                 print("Perpendicular Bisector: ")
-                print(f"1. {A_bisector}x + {B_bisector}y = {C_bisector}")
+                print(f"1. {A_bisector:.4f}x + {B_bisector:.4f}y = {C_bisector:.4f}")
                 if slope_bisector is not None:
-                    print(f"2. y = {slope_bisector}x + {b_bisector}")
+                    print(f"2. y = {slope_bisector:.4f}x + {b_bisector:.4f}")
                 else:
-                    print(f"2. x = {b_bisector}")
+                    print(f"2. x = {b_bisector:.4f}")
             else:
                 print("Perpendicular Bisector: x = " + str(points[0][0]))
         elif choice == "3":
@@ -159,9 +148,35 @@ while True:
             area = math.sqrt(s * (s - a) * (s - b) * (s - c))
             print(f"The area of the triangle is: {area:.3f} square units")
         elif choice == "5":
-            x = float(input("x: "))
-            y = float(input("y: "))
-            m = float(input("m: "))
-            b = float(input("b: "))
-            distance = distance_from_point_to_line(x, y, m, b)
-            print(f"The distance: {distance:.3f}")
+            print("1: y = mx + b")
+            print("2: ax + by = c")
+            choice = input()
+            if choice == "1":
+                x = float(input("x: "))
+                y = float(input("y: "))
+                m = float(input("m: "))
+                b = float(input("b: "))
+                distance = distance_from_point_to_line(x, y, m, b)
+                print(f"Distance: {distance:.3f}")
+            elif choice == "2":
+                x = float(input("x: "))
+                y = float(input("y: "))
+                a = float(input("a: "))
+                b = float(input("b: "))
+                c = float(input("c: "))
+                print("Distance: " + str(distance_from_point_to_line_general(x, y, a, b, c)))
+        elif choice == "6":
+            print("x,y,z ax+by+cz = d")
+            x = float(input())
+            y = float(input())
+            z = float(input())
+            a = float(input())
+            b = float(input())
+            c = float(input())
+            d = float(input())
+            print("Distance: " + str(pointToPlane(x,y,z,a,b,c,d)))
+
+
+
+                        
+            
